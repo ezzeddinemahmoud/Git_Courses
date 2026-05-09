@@ -19,7 +19,7 @@ jobs:
           zowe config auto-init \
             --host 204.90.115.200 \
             --port 10443 \
-            --user "FB3" \
+            --user Z82165 \
             --pass "PLA70OHR" \
             --reject-unauthorized false
 
