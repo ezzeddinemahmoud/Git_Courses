@@ -14,16 +14,19 @@ jobs:
       - name: Installer Zowe CLI
         run: npm install -g @zowe/cli
 
-      - name: Configurer Zowe avec RSE
+      - name: Initialiser config basique
         run: |
           zowe config auto-init \
             --host 204.90.115.200 \
             --port 6800 \
             --user Z82165 \
             --pass "PLA700HR" \
-            --reject-unauthorized false \
-            --protocol https \
-            --base-path rseapi
+            --reject-unauthorized false
+
+      - name: Modifier le profil pour RSE
+        run: |
+          zowe config set profiles.zosmf.properties.basePath rseapi
+          zowe config set profiles.zosmf.properties.protocol https
 
       - name: Tester connexion
         run: |
