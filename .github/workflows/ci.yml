@@ -7,5 +7,5 @@ jobs:
       - uses: actions/checkout@v4
       - run: npm install -g @zowe/cli
       - run: mkdir -p ~/.zowe
-      - run: cp zowe.config.json ~/.zowe/
+      - run: cp src/zowe.config.json ~/.zowe/
       - run: zowe zos-files list ds "Z82165.CBL" --max-items 5
