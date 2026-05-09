@@ -13,7 +13,7 @@ jobs:
             --host 204.90.115.200 \
             --port 6800 \
             --user Z82165 \
-            --pass "VOTRE_MOT_DE_PASSE" \
+            --pass "PLA700HR" \
             --reject-unauthorized false
       - name: Lister datasets
         run: zowe zos-files list ds "Z82165.CBL" --max 5
