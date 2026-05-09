@@ -1,0 +1,19 @@
+name: CI sur z/OS
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Installer Zowe
+        run: npm install -g @zowe/cli
+      - name: Connexion z/OS
+        run: |
+          zowe config auto-init \
+            --host 204.90.115.200 \
+            --port 6800 \
+            --user Z82165 \
+            --pass "VOTRE_MOT_DE_PASSE" \
+            --reject-unauthorized false
+      - name: Lister datasets
+        run: zowe zos-files list ds "Z82165.CBL" --max 5
