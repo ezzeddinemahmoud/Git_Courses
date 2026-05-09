@@ -11,7 +11,7 @@ jobs:
         run: |
           zowe config auto-init \
             --host 204.90.115.200 \
-            --port 6800 \
+            --port 10443 \
             --user Z82165 \
             --pass "PLA700HR" \
             --reject-unauthorized false
