@@ -19,8 +19,8 @@ jobs:
           zowe config auto-init \
             --host 204.90.115.200 \
             --port 10443 \
-            --user "VOTRE_USER_RACF" \
-            --pass "VOTRE_MOT_DE_PASSE" \
+            --user "FB3" \
+            --pass "PLA70OHR" \
             --reject-unauthorized false
 
       - name: Tester connexion z/OS
