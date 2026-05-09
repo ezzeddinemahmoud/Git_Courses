@@ -17,11 +17,11 @@ jobs:
       - name: Configurer Zowe
         run: |
           zowe config auto-init \
-            --host ${{ secrets.ZOSMF_HOST }} \
-            --port ${{ secrets.ZOSMF_PORT }} \
-            --user ${{ secrets.ZOSMF_USER }} \
-            --pass ${{ secrets.ZOSMF_PASS }} \
+            --host 204.90.115.200 \
+            --port 10443 \
+            --user "VOTRE_USER_RACF" \
+            --pass "VOTRE_MOT_DE_PASSE" \
             --reject-unauthorized false
 
       - name: Tester connexion z/OS
-        run: zowe zos-files list ds "*.ZOWE.*" --max-items 5
+        run: zowe zos-files list ds "FB3.*" --max-items 5
