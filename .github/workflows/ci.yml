@@ -23,5 +23,13 @@ jobs:
             --pass "PLA70OHR" \
             --reject-unauthorized false
 
-      - name: Tester connexion z/OS
-        run: zowe zos-files list ds "FB3.*" --max-items 5
+      - name: Compiler CBL0000
+        run: |
+          echo "Soumission du JCL..."
+          zowe zos-jobs submit local-file "./jcl/COMPILE.jcl" --wait-for-output
+          echo "Compilation terminée"
+
+      - name: Vérifier le résultat
+        run: |
+          echo "Load modules disponibles :"
+          zowe zos-files list ds "Z82165.LOAD" --max-items 10
