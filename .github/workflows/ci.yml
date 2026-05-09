@@ -14,5 +14,14 @@ jobs:
       - name: Installer Zowe CLI
         run: npm install -g @zowe/cli
 
-      - name: Tester l'installation
-        run: zowe --version
+      - name: Configurer Zowe
+        run: |
+          zowe config auto-init \
+            --host ${{ secrets.ZOSMF_HOST }} \
+            --port ${{ secrets.ZOSMF_PORT }} \
+            --user ${{ secrets.ZOSMF_USER }} \
+            --pass ${{ secrets.ZOSMF_PASS }} \
+            --reject-unauthorized false
+
+      - name: Tester connexion z/OS
+        run: zowe zos-files list ds "*.ZOWE.*" --max-items 5
