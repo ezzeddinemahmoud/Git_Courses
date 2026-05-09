@@ -1,0 +1,20 @@
+      *-----------------------
+       IDENTIFICATION DIVISION.
+      *------------------------------------------
+       PROGRAM-ID.    CBL0000
+       AUTHOR.        ezzeddine.
+      *------------------------------------------
+
+       DATA DIVISION.
+
+       PROCEDURE DIVISION.
+       main-para.
+           PERFORM 000-PARA THRU 000-EXIT
+           STOP RUN.
+       000-PARA.
+           DISPLAY "BIENVENUE DANS CETTE FORMATION".
+       000-EXIT.
+           EXIT.
+
+
+
