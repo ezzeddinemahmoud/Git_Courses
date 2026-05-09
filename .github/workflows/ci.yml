@@ -14,22 +14,17 @@ jobs:
       - name: Installer Zowe CLI
         run: npm install -g @zowe/cli
 
-      - name: Configurer Zowe
+      - name: Configurer Zowe avec RSE
         run: |
           zowe config auto-init \
             --host 204.90.115.200 \
-            --port 10443 \
+            --port 6800 \
             --user Z82165 \
-            --pass "PLA70OHR" \
-            --reject-unauthorized false
+            --pass "PLA700HR" \
+            --reject-unauthorized false \
+            --protocol https \
+            --base-path rseapi
 
-      - name: Compiler CBL0000
+      - name: Tester connexion
         run: |
-          echo "Soumission du JCL..."
-          zowe zos-jobs submit local-file "./jcl/COMPILE.jcl" --wait-for-output
-          echo "Compilation terminée"
-
-      - name: Vérifier le résultat
-        run: |
-          echo "Load modules disponibles :"
-          zowe zos-files list ds "Z82165.LOAD" --max-items 10
+          zowe zos-files list ds "Z82165.*" --max-items 5
