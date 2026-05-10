@@ -14,7 +14,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # ✅ CORRIGÉ : Pas de cache npm
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
@@ -25,14 +24,15 @@ jobs:
         npm install -g @zowe/cli@latest
         zowe --version
 
+    # ✅ CORRIGÉ : Plus de cp problématique
     - name: Setup Zowe config
       env:
         ZOS_USER: ${{ secrets.ZOS_USER }}
         ZOS_PASS: ${{ secrets.ZOS_PASS }}
       run: |
-        cp zowe.config.json ./zowe.config.json
-        zowe config set "profiles.global_base.secure.user" "$ZOS_USER" --global-config
-        zowe config set "profiles.global_base.secure.password" "$ZOS_PASS" --global-config
+        zowe config init --global-config --overwrite --for-sure --prompt false
+        zowe config set "profiles.global_base.properties.user" "$ZOS_USER" --global-config
+        zowe config set "profiles.global_base.properties.password" "$ZOS_PASS" --global-config
         zowe config list --global-config
 
     - name: Test z/OSMF connection
