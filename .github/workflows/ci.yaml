@@ -1,59 +1,45 @@
 name: "CI/CD z/OS - Build COBOL"
-
-# Déclencheurs du workflow
 on:
   push:
     branches: [ "main", "develop" ]
-    paths: [ 'src/**', 'jobs/**' ]
   pull_request:
     branches: [ "main" ]
-  workflow_dispatch:  # Permet de lancer manuellement
-
-env:
-  ZOWE_CONFIG_FILE: zowe.config.json
+  workflow_dispatch:
 
 jobs:
   build-zos:
     runs-on: ubuntu-latest
-    name: Build et Test sur z/OS
 
     steps:
-    # 1. Récupérer le code source depuis GitHub
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # 2. Installer Node.js 20
+    # ✅ CORRIGÉ : Pas de cache npm
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'npm'
 
-    # 3. Installer Zowe CLI globalement
     - name: Install Zowe CLI
       run: |
         npm install -g @zowe/cli@latest
         zowe --version
 
-    # 4. Créer le fichier config Zowe avec les secrets GitHub
     - name: Setup Zowe config
       env:
         ZOS_USER: ${{ secrets.ZOS_USER }}
         ZOS_PASS: ${{ secrets.ZOS_PASS }}
       run: |
-        # Copier votre config.json template
-        cp ${{ env.ZOWE_CONFIG_FILE }} ./zowe.config.json
-        
-        # Injecter les credentials sécurisés via GitHub Secrets
+        cp zowe.config.json ./zowe.config.json
         zowe config set "profiles.global_base.secure.user" "$ZOS_USER" --global-config
         zowe config set "profiles.global_base.secure.password" "$ZOS_PASS" --global-config
-        
-        # Vérifier la config
         zowe config list --global-config
 
-    # 5. Tester la connexion z/OSMF
     - name: Test z/OSMF connection
-      run: |
-        zowe zosmf info --zosmf-profile zosmf
+      run: zowe zosmf info --zosmf-profile zosmf
 
-    # 6. Build - Compiler les sources 
+    - name: Build COBOL
+      run: |
+        zowe zos-jobs submit local-file "jobs/compile.jcl" \
+          --zosmf-profile zosmf \
+          --wait-for-output
