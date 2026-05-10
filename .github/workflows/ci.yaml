@@ -1,36 +1,59 @@
-name: CI
+name: "CI/CD z/OS - Build COBOL"
 
+# Déclencheurs du workflow
 on:
   push:
-    branches: [main, master]
+    branches: [ "main", "develop" ]
+    paths: [ 'src/**', 'jobs/**' ]
   pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:  # Permet de lancer manuellement
+
+env:
+  ZOWE_CONFIG_FILE: zowe.config.json
 
 jobs:
-  build:
+  build-zos:
     runs-on: ubuntu-latest
+    name: Build et Test sur z/OS
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
+    # 1. Récupérer le code source depuis GitHub
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Read json.config
-        run: |
-          echo "APP_NAME=$(jq -r '.appName' json.config)" >> $GITHUB_ENV
-          echo "NODE_VERSION=$(jq -r '.nodeVersion' json.config)" >> $GITHUB_ENV
-          echo "BUILD_CMD=$(jq -r '.buildCommand' json.config)" >> $GITHUB_ENV
-          echo "TEST_CMD=$(jq -r '.testCommand' json.config)" >> $GITHUB_ENV
+    # 2. Installer Node.js 20
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
+    # 3. Installer Zowe CLI globalement
+    - name: Install Zowe CLI
+      run: |
+        npm install -g @zowe/cli@latest
+        zowe --version
 
-      - name: Install
-        run: npm ci
+    # 4. Créer le fichier config Zowe avec les secrets GitHub
+    - name: Setup Zowe config
+      env:
+        ZOS_USER: ${{ secrets.ZOS_USER }}
+        ZOS_PASS: ${{ secrets.ZOS_PASS }}
+      run: |
+        # Copier votre config.json template
+        cp ${{ env.ZOWE_CONFIG_FILE }} ./zowe.config.json
+        
+        # Injecter les credentials sécurisés via GitHub Secrets
+        zowe config set "profiles.global_base.secure.user" "$ZOS_USER" --global-config
+        zowe config set "profiles.global_base.secure.password" "$ZOS_PASS" --global-config
+        
+        # Vérifier la config
+        zowe config list --global-config
 
-      - name: Build
-        run: $BUILD_CMD
+    # 5. Tester la connexion z/OSMF
+    - name: Test z/OSMF connection
+      run: |
+        zowe zosmf info --zosmf-profile zosmf
 
-      - name: Test
-        run: $TEST_CMD
+    # 6. Build - Compiler les sources 
