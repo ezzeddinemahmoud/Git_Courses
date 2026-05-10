@@ -1,19 +1,36 @@
-name: CI sur z/OS
-on: [push]
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Installer Zowe
-        run: npm install -g @zowe/cli
-      - name: Connexion z/OS
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Read json.config
         run: |
-          zowe config auto-init \
-            --host 204.90.115.200 \
-            --port 10443 \
-            --user Z82165 \
-            --pass "PLA700HR" \
-            --reject-unauthorized false
-      - name: Lister datasets
-        run: zowe zos-files list ds "Z82165.CBL" --max 5
+          echo "APP_NAME=$(jq -r '.appName' json.config)" >> $GITHUB_ENV
+          echo "NODE_VERSION=$(jq -r '.nodeVersion' json.config)" >> $GITHUB_ENV
+          echo "BUILD_CMD=$(jq -r '.buildCommand' json.config)" >> $GITHUB_ENV
+          echo "TEST_CMD=$(jq -r '.testCommand' json.config)" >> $GITHUB_ENV
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: $BUILD_CMD
+
+      - name: Test
+        run: $TEST_CMD
